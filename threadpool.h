@@ -13,7 +13,7 @@
 
 namespace std
 {
-#define  MAX_THREAD_NUM 256
+#define  THREADPOOL_MAX_NUM 128
 
 //线程池,可以提交变参函数或拉姆达表达式的匿名函数执行,可以获取执行返回值
 //不直接支持类成员函数, 支持类静态成员函数或全局函数,Opteron()函数等
@@ -34,36 +34,9 @@ class threadpool
 	std::atomic<int>  idlThrNum;
 
 public:
-	inline threadpool(unsigned short size = 4) :stoped{ false }
+	inline threadpool(unsigned short size = 4) :idlThrNum{ 0 }, stoped{ false }
 	{
-		idlThrNum = size < 1 ? 1 : size;
-		for (size = 0; size < idlThrNum; ++size)
-		{   //初始化线程数量
-			pool.emplace_back(
-				[this]
-				{ // 工作线程函数
-					for (;;)
-					{
-						std::function<void()> task;
-						{   // 获取一个待执行的 task
-							std::unique_lock<std::mutex> lock{ this->m_lock };// unique_lock 相比 lock_guard 的好处是：可以随时 unlock() 和 lock()
-							this->cv_task.wait(lock,
-								[this] {
-									return this->stoped.load() || !this->tasks.empty();
-								}
-							); // wait 直到有 task
-							if (this->stoped && this->tasks.empty())
-								return;
-							task = std::move(this->tasks.front()); // 取一个 task
-							this->tasks.pop();
-						}
-						idlThrNum--;
-						task();
-						idlThrNum++;
-					}
-				}
-			);
-		}
+		addThr(size);
 	}
 	inline ~threadpool()
 	{
@@ -102,6 +75,8 @@ public:
 				}
 			);
 		}
+		if (idlThrNum < 1 && idlThrNum < THREADPOOL_MAX_NUM)
+			addThr(1);
 		cv_task.notify_one(); // 唤醒一个线程执行
 
 		return future;
@@ -110,6 +85,43 @@ public:
 	//空闲线程数量
 	int idlCount() { return idlThrNum; }
 
+	//添加指定数量的线程
+	void addThr(unsigned short size)
+	{
+		if (idlThrNum + size > THREADPOOL_MAX_NUM)
+		{   //限制池中线程数量
+			size = THREADPOOL_MAX_NUM - idlThrNum;
+			idlThrNum = THREADPOOL_MAX_NUM;
+		}
+		for (; size > 0; --size)
+		{   //初始化线程数量
+			pool.emplace_back(
+				[this]
+			{ // 工作线程函数
+				for (;;)
+				{
+					std::function<void()> task;
+					{   // 获取一个待执行的 task
+						std::unique_lock<std::mutex> lock{ this->m_lock };// unique_lock 相比 lock_guard 的好处是：可以随时 unlock() 和 lock()
+						this->cv_task.wait(lock,
+							[this] {
+							return this->stoped.load() || !this->tasks.empty();
+						}
+						); // wait 直到有 task
+						if (this->stoped && this->tasks.empty())
+							return;
+						task = std::move(this->tasks.front()); // 取一个 task
+						this->tasks.pop();
+					}
+					idlThrNum--;
+					task();
+					idlThrNum++;
+				}
+			}
+			);
+		}
+
+	}
 };
 
 }
