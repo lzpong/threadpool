@@ -24,7 +24,7 @@ based on C++11 , a mini `threadpool` , accept multi arguments
 4. 所有对象的初始化方式均采用了 {}，而不再使用 () 方式，因为风格不够一致且容易出错；
 5. 匿名函数： [this]{...} 不多说。[] 是捕捉器，this 是引用域外的变量 this指针， 内部使用死循环, 由cv_task.wait(lock,[this]{...}) 来阻塞线程；
 6. delctype(expr) 用来推断 expr 的类型，和 auto 是类似的，相当于类型占位符，占据一个类型的位置；auto f(A a, B b) -> decltype(a+b) 是一种用法，不能写作 decltype(a+b) f(A a, B b)，为啥？！ c++ 就是这么规定的！
-7. commit 方法是不是略奇葩！可以带任意多的参数，第一个参数是 f，后面依次是函数 f 的参数！ 可变参数模板是 c++11 的一大亮点，够亮！至于为什么是 Arg... 和 arg... ，因为规定就是这么用的！
+7. commit 方法是不是略奇葩！可以带任意多的参数，第一个参数是 f，后面依次是函数 f 的参数(**注意:参数要传struct/class的话,建议用pointer,小心变量的作用域**)！ 可变参数模板是 c++11 的一大亮点，够亮！至于为什么是 Arg... 和 arg... ，因为规定就是这么用的！
 8. commit 直接使用智能调用stdcall函数，但有两种方法可以实现调用类成员，一种是使用   bind： .commit(std::bind(&Dog::sayHello, &dog))； 一种是用 mem_fn： .commit(std::mem_fn(&Dog::sayHello), &dog)；
 9. make_shared 用来构造 shared_ptr 智能指针。用法大体是 shared_ptr<int> p = make_shared<int>(4) 然后 *p == 4 。智能指针的好处就是， 自动 delete ！
 10. bind 函数，接受函数 f 和部分参数，返回currying后的匿名函数，譬如 bind(add, 4) 可以实现类似 add4 的函数！
