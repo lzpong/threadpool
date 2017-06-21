@@ -1,5 +1,5 @@
 # threadpool
-based on C++11 , a mini `threadpool` , accept multi arguments
+based on C++11 , a mini `threadpool` , accept variable number of parameters.
 基于C++11的线程池,简洁且可以带任意多的参数
 
 管理一个任务队列，一个线程队列，然后每次取一个任务分配给一个线程去做，循环往复。
