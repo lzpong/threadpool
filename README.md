@@ -9,6 +9,7 @@ based on C++11 , a mini `threadpool` , accept variable number of parameters.
 
 代码不多,**上百行代码就完成了 线程池**, 并且, 看看 `commit`,  哈,  不是固定参数的, 无参数数量限制!  这得益于可变参数模板.
 
+支持自动释放多余空闲线程,避免峰值过后很多多余的空闲进程, 线程更优雅的结束.
 
 
 *为了避嫌，先进行一下版权说明：代码是 me “写”的，但是思路来自 Internet， 特别是[这个线程池实现](https://github.com/progschj/ThreadPool)(基本 copy 了这个实现,加上[这位同学的实现](http://blog.csdn.net/zdarks/article/details/46994607)和解释，好东西值得 copy ! * 
