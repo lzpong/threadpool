@@ -78,7 +78,21 @@ public:
 
 		return future;
 	}
-
+	// 提交一个无参任务, 且无返回值
+	template <class F>
+	void commit2(F&& task)
+	{
+		if (!_run) return;
+		{
+			lock_guard<mutex> lock{ _lock };
+			_tasks.emplace(std::forward<F>(task));
+		}
+#ifdef THREADPOOL_AUTO_GROW
+		if (_idlThrNum < 1 && _pool.size() < THREADPOOL_MAX_NUM)
+			addThread(1);
+#endif // !THREADPOOL_AUTO_GROW
+		_task_cv.notify_one();
+	}
 	//空闲线程数量
 	int idlCount() { return _idlThrNum; }
 	//线程数量
