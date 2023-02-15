@@ -128,7 +128,7 @@ private:
 						_tasks.pop();
 					}
 					task();//执行任务
-#ifndef THREADPOOL_AUTO_GROW
+#ifdef THREADPOOL_AUTO_GROW
 					if (_idlThrNum>0 && _pool.size() > _initSize) //支持自动释放空闲线程,避免峰值过后大量空闲线程
 						return;
 #endif // !THREADPOOL_AUTO_GROW
