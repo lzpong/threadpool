@@ -90,7 +90,7 @@ private:
 	//添加指定数量的线程
 	void addThread(unsigned short size)
 	{
-#ifndef THREADPOOL_AUTO_GROW
+#ifdef THREADPOOL_AUTO_GROW
 		if (!_run)    // stoped ??
 			throw runtime_error("Grow on ThreadPool is stopped.");
 		unique_lock<mutex> lockGrow{ _lockGrow }; //自动增长锁
