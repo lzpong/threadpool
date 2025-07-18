@@ -1,6 +1,12 @@
 #include "threadpool.h"
 #include <iostream>
+
+#ifdef _WIN32 // windows
 #include <windows.h>
+#else // linux
+#include <unistd.h>
+#endif
+
 
 
 void fun1(int slp)
