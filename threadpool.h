@@ -42,7 +42,10 @@ public:
 	inline threadpool(unsigned short size = 4) { _initSize = size; addThread(size); }
 	inline ~threadpool()
 	{
-		_run=false;
+		{
+			lock_guard<mutex> lock{ _lock };
+			_run = false;
+		}
 		_task_cv.notify_all(); // 唤醒所有线程执行
 		for (thread& thread : _pool) {
 			//thread.detach(); // 让线程“自生自灭”
@@ -60,9 +63,6 @@ public:
 	template<class F, class... Args>
 	auto commit(F&& f, Args&&... args) -> future<decltype(f(args...))>
 	{
-		if (!_run)    // stoped ??
-			throw runtime_error("commit on ThreadPool is stopped.");
-
 		using RetType = decltype(f(args...)); // typename std::result_of<F(Args...)>::type, 函数 f 的返回值类型
 		auto task = make_shared<packaged_task<RetType()>>(
 			bind(forward<F>(f), forward<Args>(args)...)
@@ -70,6 +70,8 @@ public:
 		future<RetType> future = task->get_future();
 		{    // 添加任务到队列
 			lock_guard<mutex> lock{ _lock };//对当前块的语句加锁  lock_guard 是 mutex 的 stack 封装类，构造的时候 lock()，析构的时候 unlock()
+			if (!_run)    // stoped ??
+				throw runtime_error("commit on ThreadPool is stopped.");
 			_tasks.emplace([task]() { // push(Task{...}) 放到队列后面
 				(*task)();
 			});
@@ -86,9 +88,9 @@ public:
 	template <class F>
 	void commit2(F&& task)
 	{
-		if (!_run) return;
 		{
 			lock_guard<mutex> lock{ _lock };
+			if (!_run) return;
 			_tasks.emplace(std::forward<F>(task));
 		}
 #ifdef THREADPOOL_AUTO_GROW
