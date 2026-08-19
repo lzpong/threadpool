@@ -15,9 +15,11 @@
 
 namespace threadpool
 {
-//线程池最大容量
+//线程池最大容量(可在包含本头文件前 #define THREADPOOL_MAX_NUM 覆盖)
+#ifndef THREADPOOL_MAX_NUM
 #define  THREADPOOL_MAX_NUM 16
-//启用自动增长(不超过 THREADPOOL_MAX_NUM)
+#endif
+//启用自动增长(不超过 THREADPOOL_MAX_NUM)(可在包含本头文件前 #define THREADPOOL_AUTO_GROW 开启)
 //#define  THREADPOOL_AUTO_GROW
 
 //线程池: 支持提交变参函数/lambda, 可获取返回值(future)
