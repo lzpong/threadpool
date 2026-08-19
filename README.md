@@ -49,7 +49,7 @@
 ## 编译方式
 Linux 系统下编译方式：
 ```shell
-$ g++ -o threadpool Main.cpp -std=c++11 # 编译方式
+$ g++ Main.cpp -o main -lpthread # 编译方式
 $ ./threadpool # 执行
 ```
 
