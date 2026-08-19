@@ -11,9 +11,9 @@
 
 void fun1(int slp)
 {
-	printf("  hello, fun1 !  %d\n" ,std::this_thread::get_id());
+	std::cout << "  hello, fun1 !  " << std::this_thread::get_id() << std::endl;
 	if (slp>0) {
-		printf(" ======= fun1 sleep %d  =========  %d\n",slp, std::this_thread::get_id());
+		std::cout << " ======= fun1 sleep " << slp << "  =========  " << std::this_thread::get_id() << std::endl;
 		std::this_thread::sleep_for(std::chrono::milliseconds(slp));
 		//Sleep(slp );
 	}
@@ -21,7 +21,7 @@ void fun1(int slp)
 
 struct gfun {
 	int operator()(int n) {
-		printf("%d  hello, gfun !  %d\n" ,n, std::this_thread::get_id() );
+		std::cout << n << "  hello, gfun !  " << std::this_thread::get_id() << std::endl;
 		return 42;
 	}
 };
