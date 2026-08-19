@@ -41,7 +41,7 @@ public:
 
 int main()
 	try {
-		std::threadpool executor{ 50 };
+		threadpool::threadpool executor{ 50 };
 		A a;
 		std::future<void> ff = executor.commit(fun1,0);
 		std::future<int> fg = executor.commit(gfun{},0);
@@ -72,7 +72,7 @@ int main()
 		std::cout << "end... " << std::this_thread::get_id() << std::endl;
 
 
-		std::threadpool pool(4);
+		threadpool::threadpool pool(4);
 		std::vector< std::future<int> > results;
 
 		for (int i = 0; i < 8; ++i) {
