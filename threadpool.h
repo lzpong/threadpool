@@ -15,7 +15,7 @@
 #include <functional>
 #endif
 
-namespace std
+namespace threadpool
 {
 //线程池最大容量,应尽量设小一点
 #define  THREADPOOL_MAX_NUM 16
