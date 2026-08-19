@@ -33,7 +33,7 @@ public:
 
 int main()
 	try {
-		threadpool executor{ 50 }; // 超过THREADPOOL_MAX_NUM(16)的部分会被截断, 实际创建16个线程
+		threadpool::threadpool executor{ 50 }; // 超过THREADPOOL_MAX_NUM(16)的部分会被截断, 实际创建16个线程
 		std::future<void> ff = executor.commit(fun1,0);
 		std::future<int> fg = executor.commit(gfun{},0);
 		std::future<int> gg = executor.commit(A::Afun, 9999); //静态成员函数用类名调用
@@ -63,7 +63,7 @@ int main()
 		std::cout << "end... " << std::this_thread::get_id() << std::endl;
 
 
-		threadpool pool(4);
+		threadpool::threadpool pool(4);
 		std::vector< std::future<int> > results;
 
 		for (int i = 0; i < 8; ++i) {
