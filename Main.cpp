@@ -1,27 +1,19 @@
 #include "threadpool.h"
 #include <iostream>
 
-#ifdef _WIN32 // windows
-#include <windows.h>
-#else // linux
-#include <unistd.h>
-#endif
-
-
-
+using namespace threadpool;
 void fun1(int slp)
 {
-	printf("  hello, fun1 !  %d\n" ,std::this_thread::get_id());
-	if (slp>0) {
-		printf(" ======= fun1 sleep %d  =========  %d\n",slp, std::this_thread::get_id());
+	std::cout << "  hello, fun1 !  " << std::this_thread::get_id() << std::endl;
+	if (slp > 0) {
+		std::cout << " ======= fun1 sleep " << slp << "  =========  " << std::this_thread::get_id() << std::endl;
 		std::this_thread::sleep_for(std::chrono::milliseconds(slp));
-		//Sleep(slp );
 	}
 }
 
 struct gfun {
 	int operator()(int n) {
-		printf("%d  hello, gfun !  %d\n" ,n, std::this_thread::get_id() );
+		std::cout << n << "  hello, gfun !  " << std::this_thread::get_id() << std::endl;
 		return 42;
 	}
 };
@@ -41,11 +33,10 @@ public:
 
 int main()
 	try {
-		std::threadpool executor{ 50 };
-		A a;
+		threadpool executor{ 50 }; // 超过THREADPOOL_MAX_NUM(16)的部分会被截断, 实际创建16个线程
 		std::future<void> ff = executor.commit(fun1,0);
 		std::future<int> fg = executor.commit(gfun{},0);
-		std::future<int> gg = executor.commit(a.Afun, 9999); //IDE提示错误,但可以编译运行
+		std::future<int> gg = executor.commit(A::Afun, 9999); //静态成员函数用类名调用
 		std::future<std::string> gh = executor.commit(A::Bfun, 9998,"mult args", 123);
 		std::future<std::string> fh = executor.commit([]()->std::string { std::cout << "hello, fh !  " << std::this_thread::get_id() << std::endl; return "hello,fh ret !"; });
 
@@ -72,7 +63,7 @@ int main()
 		std::cout << "end... " << std::this_thread::get_id() << std::endl;
 
 
-		std::threadpool pool(4);
+		threadpool pool(4);
 		std::vector< std::future<int> > results;
 
 		for (int i = 0; i < 8; ++i) {
